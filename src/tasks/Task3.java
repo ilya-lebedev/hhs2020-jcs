@@ -4,9 +4,8 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
 Задача 3
@@ -16,7 +15,13 @@ import java.util.List;
 public class Task3 implements Task {
 
     private List<Person> sort(Collection<Person> persons) {
-        return new ArrayList<>(persons);
+
+        return persons.stream() // создаем стрим
+                .sorted(Comparator // сортируем
+                        .comparing(Person::getSecondName) // сначала по фамилии
+                        .thenComparing(Person::getFirstName) // затем по имени
+                        .thenComparing(Person::getCreatedAt)) // затем по дате создания
+                .collect(Collectors.toList()); // собираем в лист
     }
 
     @Override

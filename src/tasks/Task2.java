@@ -4,11 +4,9 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /*
 Задача 2
@@ -21,7 +19,12 @@ public class Task2 implements Task {
     private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                         Collection<Person> persons2,
                                                         int limit) {
-        return new ArrayList<>();
+
+        return Stream.of(persons1, persons2) // создаем стрим из двух коллекций
+                .flatMap(Collection::stream) // превращаем стрим коллекций в стрим персон
+                .sorted(Comparator.comparing(Person::getCreatedAt)) // сортируем по дате создания
+                .limit(limit) // ограничеваем заданным количеством
+                .collect(Collectors.toList()); // собираем в лист
     }
 
     @Override
