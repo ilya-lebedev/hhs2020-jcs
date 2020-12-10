@@ -5,6 +5,7 @@ import common.Task;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /*
 А теперь о горьком
@@ -17,54 +18,46 @@ P.P.S Здесь ваши правки желательно прокоммент
  */
 public class Task8 implements Task {
 
+    private Stream<String> filterPersonsNames(List<Person> persons) {
+        return persons.stream()
+                .skip(1)
+                .map(Person::getFirstName);
+    }
+
     // Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
     public List<String> getNames(List<Person> persons) {
 
-        return persons.stream()
-                .skip(1)
-                .map(Person::getFirstName)
+        return filterPersonsNames(persons)
                 .collect(Collectors.toList());
     }
 
     // ну и различные имена тоже хочется
     public Set<String> getDifferentNames(List<Person> persons) {
 
-        return persons.stream()
-                .skip(1)
-                .map(Person::getFirstName)
+        return filterPersonsNames(persons)
                 .collect(Collectors.toSet());
     }
 
     // Для фронтов выдадим полное имя, а то сами не могут
     public String convertPersonToString(Person person) {
-        String result = "";
 
-        if (person.getFirstName() != null) {
-            result = person.getFirstName();
-        }
-
-        if (person.getSecondName() != null) {
-            if (result.length() > 0) {
-                result += " ";
-            }
-
-            result += person.getSecondName();
-        }
-
-        return result;
+        return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(" "));
     }
 
     // словарь id персоны -> ее имя
     public Map<Integer, String> getPersonNames(Collection<Person> persons) {
 
         return persons.stream()
-                .collect(Collectors.toMap(Person::getId, Person::getFirstName));
+                .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
     }
 
     // есть ли совпадающие в двух коллекциях персоны?
     public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
 
-        return !Collections.disjoint(persons1, persons2);
+        return persons1.stream()
+                .anyMatch(persons2::contains);
     }
 
     @Override
